@@ -1,0 +1,446 @@
+<html>
+<head>
+    <title>Eric Peterik's Work Logger - 2018-01-23</title>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <style>
+        h1 {
+            text-align: center;
+        }
+
+        .mainFormStyle {
+            width: 600px;
+            margin: 0 auto;
+        }
+
+        .workRow {
+            width: 600px;
+            display: block;
+            margin: 10px;
+        }
+
+        .projectRowStyle {
+            width: 600px;
+            display: block;
+        }
+
+        .leftEntryColumn {
+            display: inline-block;
+            width: 150px;
+            text-align: right;
+            margin: 5px;
+        }
+
+        .rightEntryColumn {
+            display: inline-block;
+            width: 420px;
+            text-align: left;
+            margin: 5px;
+        }
+
+        .displayRow {
+            display: block;
+            width: 560px;
+            border-top: 1px solid black;
+            margin: 20;
+        }
+
+        .personalColumn {
+            display: inline-block;
+            width: 260;
+            border: 1px solid black;
+            margin: 5px;
+            vertical-align: top;
+        }
+
+        .workColumn {
+            display: inline-block;
+            width: 260px;
+            border: 1px solid black;
+            margin: 5px;
+            vertical-align: top;
+        }
+
+        .workHeaderRow {
+            display: block;
+        }
+
+        .listItemBox {
+            padding: 3px;
+        }
+
+        .workHeaderLeftColumn {
+            display: inline-block;
+            text-align: left;
+            width: 45%;
+            margin: 3px;
+            font-size: 20pt;
+        }
+
+        .workHeaderRightColumn {
+            display: inline-block;
+            text-align: right;
+            width: 45%;
+            margin: 3px;
+            font-size: 14pt;
+        }
+
+        .itemListRow {
+            margin: 5px;
+        }
+
+        .leftListVal {
+            display: inline-block;
+            width: 55px;
+            margin-right: 5px;
+            text-align: right;
+            font-size: 12pt;
+        }
+
+        .rightListVal {
+            display: inline-block;
+            width: 175px;
+            margin-left: 5px;
+            color: red;
+            text-align: left;
+            font-size: 13pt;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="header"></div>
+
+    <div id="root"></div>
+    
+    <script type="text/babel">
+   
+        class App extends React.Component {
+            constructor(props)
+            {
+                super(props);
+                this.state = {
+                    projectValue: 'Personal',
+                    descriptionValue: '',
+                    minutesValue: 0,
+                    personalItemsArray: [],
+                    workItemsArray: []
+                };
+
+                //bind functions/objects outside of class to class so they have the same scope/this
+                this.handleProjectChange = this.handleProjectChange.bind(this);
+                this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
+                this.handleMinutesChange = this.handleMinutesChange.bind(this);
+                this.handleAddButtonClick = this.handleAddButtonClick.bind(this);
+                this.formatTime = this.formatTime.bind(this);
+                
+            } //end constructor
+
+            //have a function return a (new) object to reset the input fields
+            defaultWorkLoggerInputStates() {
+                return {projectValue: 'Personal',
+                        descriptionValue: '',
+                        minutesValue: 0};
+            }
+
+            createWorkItem() {
+                return {minutes: 0,
+                        description: '',
+                        project: ''};
+            }
+
+            //generate a HH:MM time format based on a supplied number of minutes
+            formatTime(numberOfMinutes) {
+                console.log("Entering formatTime function - Number of Minutes: " + numberOfMinutes);
+
+                //var
+                let formattedTime = "00:00";
+
+                //Logic: Get number of hours by dividing number of minutes by 60, 
+                //       concatinate with a colon, then use modulus division on 
+                //       the remaining minutes
+                formattedTime = Math.floor(numberOfMinutes/60) + ":" + (numberOfMinutes % 60);
+                
+                console.log("The current formatted time is: " + formattedTime); //debug
+
+                //logic to make sure there are two trailing numbers after the colon
+                //console.log(formattedTime.indexOf(":"));
+                //console.log(formattedTime.length);
+                if(formattedTime.indexOf(":") == formattedTime.length-2)
+                {
+                    formattedTime = formattedTime.substring(0, formattedTime.indexOf(":") + 1) + "0" + formattedTime.substring(formattedTime.indexOf(":") + 1, formattedTime.length);
+                }
+
+                console.log("Leaving formatTime function");
+                return formattedTime;
+            }
+
+            handleProjectChange(event) {
+                console.log("Entering handleProjectChange event");
+
+                //get selected project dropdown value (helps in debugging)
+                let localProjectValue = event.target.value;
+                console.log("localProjectValue: "+ localProjectValue); //debug
+
+                //set state object
+                this.setState({projectValue: localProjectValue});
+                console.log("nameValue state: " + this.state.projectValue); //debug
+
+                console.log("Leaving handleProjectChange event");
+            }
+
+            handleDescriptionChange(event) {
+                console.log("Entering handleDescriptionChange event");
+
+                //get selected Description text value (helps in debugging)
+                let localDescriptionValue = event.target.value;
+                console.log("localDescriptionValue: "+ localDescriptionValue); //debug
+
+                //set state object
+                this.setState({descriptionValue: localDescriptionValue});
+                console.log("descriptionValue state: " + this.state.descriptionValue); //debug
+
+                console.log("Leaving handleDescriptionChange event");
+            }
+
+            handleMinutesChange(event) {
+                console.log("Entering handleMinutesChange event");
+
+                //get selected Minutes text value (helps in debugging)
+                let localMinutesValue = event.target.value;
+                console.log("localMinutesValue: "+ localMinutesValue); //debug
+
+                //allow only numbers
+                if (isNaN(localMinutesValue))
+                {
+                    console.log("Leaving handleMinutesChange event - non-number value entered");
+                    return; 
+                }
+
+                //rule per requires - minutes entered must be between zero and 240
+                if (localMinutesValue < 0 ||
+                    localMinutesValue > 240)
+                {
+                    alert("Must enter a number between 0 and 240");
+                    console.log("Leaving handleMinutesChange event - number out of range");
+                    return;
+                }
+
+                //set state object
+                this.setState({minutesValue: localMinutesValue});
+                console.log("minutesValue state: " + this.state.minutesValue); //debug
+
+                console.log("Leaving handleMinutesChange event");
+            }
+
+            handleAddButtonClick(event) {
+                console.log("Entering handleAddButtonClick event");
+
+                //debug - lets find out the values of what we're adding First
+                console.log("current values of state: ");
+                console.log(this.state);
+
+                //running out of time - adding validation here
+                //validations for Description: 
+                if (this.state.descriptionValue.trim().length < 5)
+                {
+                    alert("The supplied description needs to be at leave 5 characters long.");
+                    return;
+                }
+
+                //validations for minutes
+                if ((typeof this.state.minutesValue == "string" && //checks if empty
+                     this.state.minutesValue.trim() == "") ||
+                    isNaN(this.state.minutesValue) || //if entered number is not a number
+                    parseInt(this.state.minutesValue) < 0 || //checks if negative number entered
+                    parseInt(this.state.mintuesValue) > 240) //checks if a value greater than 240 has been entered
+                {
+                    alert("You must enter a number of minutes that is between 0 and 240 mintues (0 - 4hrs).");
+                    return;
+                }
+
+                //Now doing the logic to add to arrays
+
+                //get new item to push onto array
+                let localItem = this.createWorkItem();
+
+                //set item properties
+                localItem.project = this.state.projectValue;
+                localItem.minutes = this.state.minutesValue;
+                localItem.description = this.state.descriptionValue;
+
+                //create local array variable
+                let localArray = [];
+
+                //set local array based on current project
+                if (this.state.projectValue === "Personal")
+                {
+                    localArray = this.state.personalItemsArray;
+                }
+                else
+                {
+                    localArray = this.state.workItemsArray;
+                }
+
+                //debug
+                console.log(localArray);
+
+                //push local item onto the array
+                localArray.push(localItem);
+
+                //sort array before setting back to state
+                //sort from: https://www.w3schools.com/js/js_array_sort.asp
+                localArray.sort(function(a, b){return b.minutes - a.minutes})
+
+                //set state array based on the current project
+                if (this.state.projectValue === "Personal")
+                {
+                    this.setState({personalItemsArray: localArray});
+                }
+                else
+                {
+                    this.setState({workItemsArray: localArray});
+                }
+
+                //reset input fields by resetting the state for those fields
+                this.setState(this.defaultWorkLoggerInputStates());
+
+                console.log("Leaving handleAddButtonClick event");
+
+            } //end of handleAddButtonClick
+
+
+            handleSubmit(event) {
+                //alert('A name was submitted: ' + this.state.value);
+                this.setState({submitClicked: true})
+                event.preventDefault(); //prevent default action of a button on a form (default action is submit)
+            }
+
+            render ()
+            {
+                //create map function - same one will be used for both Personal and Work lists
+                let workItemsListMap = (itemObject, arrayIndex) => {
+                                            return <LoggerListItem 
+                                                    key = {itemObject.project + "list" + arrayIndex}
+                                                    indexVal = {arrayIndex}
+                                                    minutes = {itemObject.minutes}
+                                                    description = {itemObject.description}
+                                                    formatTime = {this.formatTime} />
+                                        }
+
+                //create our own custom reducer to sum up time
+                let workItemsListReducer = (accumulator, currentObject) => {
+
+                                            if (accumulator != currentObject)
+                                            {
+                                                return accumulator = accumulator + currentObject.minutes;
+                                            }
+                                            else 
+                                            {
+                                                return 0;
+                                            }
+                                        }
+
+                return (
+                    <div id='mainForm' class="mainFormStyle">
+                        <div id='workEntryRow' class="workRow">
+                            <div id='projectRow'>
+                                <div class="leftEntryColumn">
+                                    Project
+                                </div>
+                                <div class='rightEntryColumn'>
+                                    <select value={this.state.projectValue} onChange={this.handleProjectChange}>
+                                        <option value="Personal">Personal</option>
+                                        <option value="Work">Work</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id='descriptionRow'>
+                                <div class="leftEntryColumn">
+                                    Description
+                                </div>
+                                <div class="rightEntryColumn">
+                                    <input type="text" value={this.state.descriptionValue} onChange={this.handleDescriptionChange} />
+                                </div>
+                            </div>
+                            <div id='minutesRow'>
+                                <div class="leftEntryColumn">
+                                    Minutes
+                                </div>
+                                <div class="rightEntryColumn">
+                                    <input type="text" value={this.state.minutesValue} onChange={this.handleMinutesChange} />
+                                </div>
+                            </div>
+                            <div id='addButtonRow'>
+                                <div class="leftEntryColumn">
+                                    <button onClick={this.handleAddButtonClick} >Add</button>
+                                </div>
+                                <div class="rightEntryColumn">
+                                    &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                        <div id='displayRow' class="displayRow">
+                            <div id='personalColumn' class="personalColumn">
+                                <div id='personalBox' class='listItemBox'>
+                                    <div id='personalLabelRow' class="workHeaderRow">
+                                        <div class="workHeaderLeftColumn">Personal</div>
+                                        <div class="workHeaderRightColumn">{this.formatTime(this.state.personalItemsArray.reduce((previousValue, currentValue) => previousValue + parseInt(currentValue.minutes), 0))}</div>
+                                    </div>
+                                    <div id='personalItemsRow'>
+                                        {this.state.personalItemsArray.map(workItemsListMap)}
+                                    </div>
+                                </div>
+                            </div>
+                            <div id='workColumn' class="workColumn">
+                                <div id='workBox' class='listItemBox'>
+                                    <div id='worLabelRow' class="workHeaderRow">
+                                        <div class="workHeaderLeftColumn">Work</div>
+                                        <div class="workHeaderRightColumn">{this.formatTime(this.state.workItemsArray.reduce((previousValue, currentValue) => previousValue + parseInt(currentValue.minutes), 0))}</div>
+                                    </div>
+                                    <div id='workItemsRow'>
+                                        {this.state.workItemsArray.map(workItemsListMap)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                ); //end Return
+
+            } //end Render()
+
+        } //End of App class
+
+        //stateless function for rendering the work logger item rows
+        const LoggerListItem = (props) => {
+
+            return (
+                <div id={'itemListRow' + props.indexVal} key={'itemListRow' + props.indexVal} class='itemListRow' >
+                    <div id={'itemListTime' + props.indexVal} key={'itemListTime' + props.indexVal} class="leftListVal" >{props.formatTime(props.minutes)}</div>
+                    <div id={'itemListDescription' + props.indexVal} key={'itemListDescription' + props.indexVal} class="rightListVal" >{props.description}</div>
+                </div>
+            )
+
+        } //end LoggerListItem
+
+        const PageHeader = (props) => {
+
+                return (
+                        <h1>Work Logger</h1>
+                    );
+
+            } //end PageHeader
+
+
+
+        //RENDER THE PAGE
+       ReactDOM.render(<PageHeader />, document.getElementById("header")); //JSX mehtod of doing it
+       ReactDOM.render(<App />, document.getElementById("root")); //JSX mehtod of doing it
+
+    </script>
+</body>

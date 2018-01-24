@@ -1,0 +1,121 @@
+<html>
+    <head>
+        <title>Eric Peterik's Checkerboard Assignment 2018-01-17</title>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <!--         <script src="node_modules/react/umd/react.development.js"></script>
+        <script src="node_modules/react-dom/umd/react-dom.development.js"></script> 
+        -->
+    </head>
+    <body>
+        <p>Enter size of board: <input id="boardSizeInput" type="number" value="12" min=0 /></p>
+        <p>Enter color of even squares: <input id="boardColorEvenSquares" type="text" value="red" /></p>
+        <p>Enter color of odd squares: <input id="boardColorOddSquares" type="text" value="black" /></p>
+        <p><button onclick="generateBoard();">Generate Board!</button></p>
+        <div id="root"></div>
+
+        <script>
+            //vars
+            var styles = {
+                row: {height: '20px'},
+                cell: {height: '20px', width: '20px', display:'inline-block'},
+                colorA: {backgroundColor: 'black'},
+                colorB: {backgroundColor: 'red'}
+                }
+
+            let rowArray = [];
+            let boardArray = [];
+
+
+            //actual function to generate the resultant board
+            function generateBoard() 
+            {  
+                //vars
+                let userNumberInput = 12; //set user input to this var - default val for testin
+                let userColorInput1 = "black"; //future functionality - default val for testin
+                let userColorInput2 = "red"; //future functionality - default val for testin
+                let styleObject;
+                let totalNumberOfTimes = 0;
+                let colorAFlip = true; //var named after original "colorA" style (from above)
+
+                //get user entered values
+                userNumberInput = document.getElementById('boardSizeInput').value;
+                userColorInput1 = document.getElementById('boardColorEvenSquares').value;
+                userColorInput2 = document.getElementById('boardColorOddSquares').value;
+
+                //set total number of cells to generate
+                totalNumberOfTimes = userNumberInput * userNumberInput;
+
+                //debug
+                console.log(totalNumberOfTimes);
+                console.log(userColorInput1);
+                console.log(userColorInput2);
+
+                //generate cells
+                for (let rowCount = 1; rowCount <= totalNumberOfTimes; rowCount++)
+                {
+
+                    //debug
+                    //console.log(rowCount);
+
+                    //flip the color of every other cell generated
+                    if (colorAFlip)
+                    {
+                        //styleObject = {style: {...styles.cell, ...styles.colorA}, key: rowCount, id: "boardCell_" + rowCount}; //
+                        styleObject = {style: {...styles.cell, ...{backgroundColor: userColorInput1}}, key: rowCount, id: "boardCell_" + rowCount}; //object object spread
+                        rowArray.push(Cell(styleObject));
+                        colorAFlip = false;
+                    }
+                    else
+                    {
+                        styleObject = {style: {...styles.cell, ...{backgroundColor: userColorInput2}}, key: rowCount, id: "boardCell_" + rowCount}; //object spread
+                        rowArray.push(Cell(styleObject));
+                        colorAFlip = true;
+                    }
+
+                    //if max number of cells per row has been hit, generate row div
+                    if ((rowCount % userNumberInput) === 0)
+                    {
+                        //debug
+                        //console.log("Checking for new row (row: " + rowCount + " userNumberInput: " + userNumberInput + "): " + (rowCount % userNumberInput));
+                        //concatinate array
+                        //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
+                        //boardArray = boardArray.concat(rowArray);
+                        //boardArray.push(React.createElement('br', {key: rowCount+"rowReturn"}));
+                        boardArray.push(React.createElement('div', {key: "boardRow" + (rowCount), id: "boardRow_" + (rowCount/userNumberInput)}, rowArray));
+                        
+                        //only want to flip value if there is an even number of columns
+                        //  odd number columns will start correctly
+                        if (userNumberInput % 2 === 0)
+                        {
+                            colorAFlip = !colorAFlip;
+                        }
+
+                        //clear out array to start new/fresh again! 
+                        rowArray = [];
+                    }
+
+                    //debug
+                    //console.log(rowArray);
+                    //console.log(boardArray)
+                    
+                } //end for-loop
+
+                //debug
+                console.log(boardArray);
+
+                //render board
+                ReactDOM.render(React.createElement('div', {id: "mainBoard"}, boardArray), document.getElementById("root"));
+
+            } //end generateBoard()
+
+            function Cell (props) {
+                let cellDiv = React.createElement('div', props, ""); 
+                return cellDiv;
+            }
+
+
+        </script>
+    </body>
+</html>

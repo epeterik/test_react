@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <!-- Load script libraries to get React and Axios to work -->
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    </head>
+    <body>
+        <div id="anchor"></div>
+        <div id="anchor1"></div>
+        <div id="anchor2"></div>
+        <div id="anchor3"></div>
+        <script>
+            //Hello World
+
+            ReactDOM.render(React.createElement('h1', null, "Hello World"), document.getElementById("anchor")); //Good
+            
+            //Hello World Function Creator
+             function helloCreator(inputString)
+             {
+                return React.createElement('h1', null, 'Hello ' + inputString);
+             }
+            
+             ReactDOM.render(helloCreator("Bob"), document.getElementById("anchor1")); 
+
+            //Hello World Function Creator
+            function Hello(props)
+             {
+                return React.createElement('h1', {id: props.id}, 'Hello ' + props.name);
+             }
+            
+             ReactDOM.render(Hello({name: 'Jane', id: 'red'}), document.getElementById("anchor2")); 
+
+             ReactDOM.render(
+                 React.createElement(Hello, {id: 'blue', name: 'Jill'}), document.getElementById("anchor3"));
+
+            //Hello component
+        </script>
+    </body>
+</html>

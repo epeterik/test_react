@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <title>Eric Peterik's Composable Squares Assignment - 2018-01-17</title>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <!--         <script src="node_modules/react/umd/react.development.js"></script>
+        <script src="node_modules/react-dom/umd/react-dom.development.js"></script> 
+        -->
+    </head>
+    <body>
+        <div id="root"></div>
+
+        <script>
+            //function to create new div elements with a square background
+            const createNewSquare = (fontColor, boxBackgroundColor) => {
+                console.log("in create new square");
+
+                //https://www.w3schools.com/css/tryit.asp?filename=trycss_background-color_elements
+                return React.createElement('div', 
+                    {style: {height: "200px", 
+                             width: "200px", 
+                             display: "inline-block",
+                             fontSize: "24pt",
+                             color: fontColor,
+                             backgroundColor: boxBackgroundColor}}, 
+                             fontColor + " on " + boxBackgroundColor);
+            }
+
+            //render elements to screen
+            ReactDOM.render(
+                React.createElement('div', 
+                    null, 
+                    createNewSquare("white", "blue"), 
+                    createNewSquare("blue", "red"),
+                    createNewSquare("green", "pink")), document.getElementById("root"));
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,491 @@
+<html>
+<head>
+    <title>Eric Peterik's Memory Game - 2018-01-22</title>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+	<script type="text/babel">
+
+        //Styles
+        const memoryGameTitleStyle = {
+            textAlign: 'center'
+        }
+
+        const playBarStyle = {
+            textAlign: 'center',
+            padding: '20px'
+        }
+
+        const boardRowStyle = {
+            
+        }
+
+        const gameBoardStyle = {
+            width: '450px',
+            margin: '0 auto'
+        }
+
+        const squareStyle = {
+            display: 'inline-block',
+            border: '1px',
+            borderColor: 'black',
+            borderStyle: 'solid',
+            height: '100px',
+            width: '100px',
+            margin: '3px'
+        }
+
+        //keep around for debugging
+        const memoryGameArray = [{systemSelected: false, userClicked: false}, //index 0
+                                 {systemSelected: false, userClicked: false}, //index 1
+                                 {systemSelected: false, userClicked: false}, //index 2
+                                 {systemSelected: false, userClicked: false}, //index 3
+                                 {systemSelected: false, userClicked: false}, //index 4
+                                 {systemSelected: false, userClicked: false}, //index 5
+                                 {systemSelected: false, userClicked: false}, //index 6
+                                 {systemSelected: false, userClicked: false}, //index 7
+                                 {systemSelected: false, userClicked: false}, //index 8
+                                 {systemSelected: false, userClicked: false}, //index 9
+                                 {systemSelected: false, userClicked: false}, //index 10
+                                 {systemSelected: false, userClicked: false}]; //index 11
+
+        //created to fix constant issue below, this generates a new object every call
+        const squareObj2 = () => {
+            let squareObject = {systemSelected: false, userClicked: false}
+            return squareObject;
+        }
+
+        //unused, defect in javascript means constants are not actaully constants, but variables hoisted up
+        const squareObj = {
+            systemSelected: false,
+            userClicked: false
+        }
+
+        const generateSquares = () => {
+            let squaresArray = [];
+            for (let i = 0; i < 12; i++)
+            {
+                //let newSquareObject = squareObj;
+                squaresArray[i] = squareObj2();
+            }
+            return squaresArray;
+        }
+
+        const squareBackgroundColor = (square, gameState) =>
+        {
+            if (gameState === "completed")
+            {
+                if (square.systemSelected && !square.userClicked)
+                {
+                    return "red";
+                }
+                else if (!square.systemSelected && square.userClicked)
+                {
+                    return "yellow";
+                }
+                else if (square.systemSelected && square.userClicked)
+                {
+                    return "green";
+                }
+            }
+            else if (gameState === "play")
+            {
+                if (square.userClicked)
+                {
+                    return "purple";
+                }
+            }
+            else if (gameState === "pattern")
+            {
+                if (square.systemSelected)
+                {
+                    return "blue";
+                }
+            }
+
+            return "grey";
+
+        } //end squareBackgroundColor
+
+        //for page title
+        function GeneratePageTitle(props) {
+                return (
+                    <h1 style={memoryGameTitleStyle}>Memory Game</h1>
+                )
+            }
+
+
+        class Board extends React.Component {
+                constructor(props)
+                {
+                    super(props);
+                    this.state = {
+                        
+                    };
+
+                    //bind functions/objects outside of class to class so they have the same scope/this
+                    this.renderSquare = this.renderSquare.bind(this);
+
+                } //end constructor
+
+                renderSquare(squareIndex) {
+                    //console.log("in renderSquare");
+                    return (
+                        <div style={{...squareStyle, backgroundColor:squareBackgroundColor(this.props.squares[squareIndex], this.props.gameState)}} onClick={()=>this.props.userClickAction(squareIndex)}></div>
+                    )
+                }
+
+                render() {
+
+                    //debug
+                    console.log("display squares array from props");
+                    console.log(this.props.squares);
+
+                    return (
+                        <div id='gameBoard' style={gameBoardStyle}>
+                            <div id='row1' style={boardRowStyle}>
+                                { this.renderSquare(0) }
+                                { this.renderSquare(1) }
+                                { this.renderSquare(2) }
+                                { this.renderSquare(3) }
+                            </div>
+                            <div id='row2'>
+                                { this.renderSquare(4) }
+                                { this.renderSquare(5) }
+                                { this.renderSquare(6) }
+                                { this.renderSquare(7) }
+                            </div>
+                            <div id='row3'>
+                                { this.renderSquare(8) }
+                                { this.renderSquare(9) }
+                                { this.renderSquare(10) }
+                                { this.renderSquare(11) }
+                            </div>
+                        </div>
+                    )
+
+                } //end render
+
+        } //end class Board 
+
+        class PlayBar extends React.Component {
+            constructor(props)
+            {
+                super(props);
+                this.state = {
+                    
+                };
+
+                //bind functions/objects outside of class to class so they have the same scope/this
+                //this.renderSquare = this.renderSquare.bind(this);
+
+            } //end constructor
+
+            render() {
+                let output = <div style={playBarStyle}></div>;
+                //console.log(output);
+
+                console.log(this.props.gameState);
+                if (this.props.gameState === "")
+                    {
+                        output = <div style={playBarStyle}><button onClick={()=>this.props.newGameAction()}>Start Game</button></div>
+                    }
+                if (this.props.gameState === "timer")
+                    {
+                        console.log(this.props.timerCurrent);
+                        output = <div style={playBarStyle}>Get ready to memorize cells in {this.props.timerCurrent}</div>
+                        setTimeout(() => { console.log("in timer"); this.props.timerAction() }, 1000);
+                    }
+                if (this.props.gameState === "pattern")
+                    {
+                        let localDateTime = new Date();
+
+                        output = <div style={playBarStyle}>Remember the pattern!</div>
+                        //this.props.patternAction();
+                        console.log("current time: " + localDateTime.getHours() + ":" + localDateTime.getSeconds());
+                        setTimeout(() => { 
+                                console.log("current time: " + localDateTime.getHours() + ":" + localDateTime.getSeconds());
+                                console.log("make call to set pattern"); 
+                                this.props.patternAction(); 
+                            }, 1000);
+                        console.log("current time: " + localDateTime.getHours() + ":" + localDateTime.getSeconds());
+                    }
+                if (this.props.gameState === "play")
+                    {
+                        output = <div style={playBarStyle}>Guess the correct cells!  You have {this.props.currentPlayTimer} seconds left! </div>
+                        setTimeout(() => { console.log("running play timer!"); this.props.playTimeAction() }, 1000);
+                    }
+                if (this.props.gameState === "completed")
+                    {
+                        output = <div style={playBarStyle}><button onClick={()=>this.props.nextGameAction()}>Play Again</button></div>
+                    }
+
+                console.log(output);
+
+                return (
+                    output
+                )
+            }
+
+        } //end class PlayBar
+
+        class Game extends React.Component {
+            constructor(props)
+            {
+                super(props);
+                this.state = {
+                    gameState: '',
+                    squaresArray: generateSquares(), //memoryGameArray
+                    maxTimerSeconds: 3,
+                    currentTimerSeconds: 1,
+                    patternFlashDelay: 3000,
+                    patternDisplayed: false,
+                    userClicks: 0,
+                    maxPlayTimerSeconds: 3,
+                    currentPlayTimerSeconds: 1
+                };
+
+                //bind functions/objects outside of class to class so they have the same scope/this
+                this.startNewGame = this.startNewGame.bind(this);
+                this.countDownTimer = this.countDownTimer.bind(this);
+                this.setPattern = this.setPattern.bind(this);
+                this.randomSystemSelect = this.randomSystemSelect.bind(this);
+                this.handleUserClick = this.handleUserClick.bind(this);
+                this.handleNextGame = this.handleNextGame.bind(this);        
+                this.countDownPlayTimer = this.countDownPlayTimer.bind(this);        
+
+            } //end constructor
+
+            startNewGame () {
+                console.log("startNewGame()");
+                this.setState({gameState: 'timer'});
+            }
+
+            countDownTimer () {
+                console.log("in countDownTimer | maxTimerSeconds: " + this.state.maxTimerSeconds + " | currentTimerSeconds" + this.state.currentTimerSeconds)
+                if (this.state.currentTimerSeconds < this.state.maxTimerSeconds)
+                {
+                    let currentWaitTime = this.state.currentTimerSeconds + 1;
+                    this.setState({currentTimerSeconds: currentWaitTime})
+                }
+                else //times up 
+                {
+                    this.setState({gameState: 'pattern'});
+                }
+            }
+
+            randomSystemSelect () {
+                console.log("In randomSystemSelect");
+
+                //var
+                let randomIndexValue = 0;
+
+                //need local working copy of the squares array
+                let updatedSquaresArray = this.state.squaresArray;
+                //debug
+                //console.log("randomSystemSelect - UpdatedSquaresArray: ");
+                //console.log(updatedSquaresArray);
+
+                for (let squaresSelected = 0; squaresSelected < 4; squaresSelected++)
+                {
+                    randomIndexValue = Math.floor(Math.random() * (updatedSquaresArray.length - 1));
+                    //debug
+                    //console.log("randomSystemSelect - Random Index Value is: " + randomIndexValue); //debug
+                    //console.log(updatedSquaresArray[randomIndexValue]);
+
+                    //check if the square in that position in the array is already selected
+                    if (updatedSquaresArray[randomIndexValue].systemSelected == false)
+                    {
+                       // console.log("Updated square value")
+                        //if not, set the system selected value to true
+                        updatedSquaresArray[randomIndexValue].systemSelected = true;
+                    }
+                    else
+                    {
+                        squaresSelected--;
+                    }
+                    //else, loop though again getting another random index
+
+                    //console.log("squares selected: " + squaresSelected)
+                }
+
+                //debug
+                //console.log("randomSystemSelect - new array after randomizing:");
+                //console.log(updatedSquaresArray);
+
+                console.log("Exiting randomSystemSelect");
+
+                //four squares have been randomly selected
+                return updatedSquaresArray;
+
+            } //end of randomSystemSelect
+
+            setPattern () {
+                console.log("setPattern - Begin | patternDisplayed: " + this.state.patternDisplayed);
+
+                if (this.state.gameState === "pattern")
+                {
+                    if (!this.state.patternDisplayed)
+                    {
+
+                        let updatedSquaresArray = this.randomSystemSelect();
+
+                        //debug
+                        console.log("setPattern - updated array after: ");
+                        console.log(updatedSquaresArray);
+
+                        this.setState({squaresArray: updatedSquaresArray});
+
+                        //debug
+                        console.log("setPattern - after state update: ");
+                        console.log(this.state.squaresArray);
+
+                        this.setState({patternDisplayed: true});
+                    }
+                    else
+                    {
+                        this.setState({gameState: 'play'});
+                    }      
+                }          
+            }
+
+            handleUserClick(squareIndex) {
+                console.log("In handleUserClick() | squareIndex: " + squareIndex + " | gameState: " + this.state.gameState);
+
+                //check if we're in a state where we want to handle user input
+                if (this.state.gameState === "play")
+                {
+                    //create new array to modify
+                    let updatedSquaresArray = this.state.squaresArray;
+
+                    updatedSquaresArray[squareIndex].userClicked = true;
+
+                    this.setState({squaresArray: updatedSquaresArray});
+
+                    //debug
+                    console.log("handleUserClick() - Updated SquaresArray:");
+                    console.log(this.state.squaresArray);
+
+                    //store value of current number of user clicks
+                    let numberOfUserClicks = this.state.userClicks;
+
+                    //increment number of user clicks
+                    numberOfUserClicks = numberOfUserClicks + 1;
+                    console.log("handleUserClick() - The user has clicked:" + numberOfUserClicks);
+                    
+                    if(numberOfUserClicks === 4)
+                    {
+                        this.setState({gameState: 'completed'});
+                    }
+                    else
+                    {
+                        this.setState({userClicks: numberOfUserClicks});
+                    }
+                }
+                else
+                {
+                    //if not, exit without doing anything
+                    alert("You cannot click at this time");
+                    return;
+                }
+
+                console.log("handleUserClick() - exiting");
+            }
+
+            countDownPlayTimer () {
+                console.log("in countDownPlayTimer | maxPlayTimerSeconds: " + this.state.maxPlayTimerSeconds + " | currentPlayTimerSeconds" + this.state.currentPlayTimerSeconds)
+                if (this.state.currentPlayTimerSeconds < this.state.maxPlayTimerSeconds)
+                {
+                    let currentPlayWaitTime = this.state.currentPlayTimerSeconds + 1;
+                    this.setState({currentPlayTimerSeconds: currentPlayWaitTime});
+                }
+                else //times up 
+                {
+                    this.setState({gameState: 'completed'});
+                }
+            }
+
+            handleNextGame() {
+                console.log("In handleNextGame");
+
+                this.setState({gameState: 'timer',
+                    squaresArray: generateSquares(), //memoryGameArray
+                    maxTimerSeconds: 3,
+                    currentTimerSeconds: 1,
+                    patternFlashDelay: 3000,
+                    patternDisplayed: false,
+                    userClicks: 0,
+                    maxPlayTimerSeconds: 3,
+                    currentPlayTimerSeconds: 1});
+
+                console.log("Exiting handleNextGame");
+            }
+
+            resetGame() {
+
+                this.setState({currentTimerSeconds: 0});
+            }
+
+            upateBoardState() {
+                let newState = '';
+
+                switch (this.state.currentBoardState) //add to state
+                {
+                    case 'uninitialized':
+                        newState = 'unrevealed';
+                        break;
+                    case 'unrevealed':
+                        newState = 'memorize';
+                        break;
+                    case 'memorize':
+                        newState = 'guess';
+                        break;
+                    case 'guess':
+                        newState = 'check';
+                        break;
+                    case 'check': //skips unitialized
+                        newState = 'unrevealed';
+                        break;
+                }
+
+                this.setState({currentBoardState: 'urevealed'});
+            }
+
+            render() {
+                console.log("state.gameState");
+                console.log(this.state.gameState);
+
+                return (
+                    <div id='gameDisplay'>
+                        <GeneratePageTitle />
+                        <Board  gameState={this.state.gameState}
+                                squares={this.state.squaresArray}
+                                userClickAction={this.handleUserClick}
+                                />
+                        <PlayBar gameState={this.state.gameState} 
+                                 newGameAction={this.startNewGame} 
+                                 timerMax={this.state.maxTimerSeconds}
+                                 timerCurrent={(this.state.maxTimerSeconds - this.state.currentTimerSeconds) + 1} 
+                                 timerAction={this.countDownTimer} 
+                                 flashPatternDelay={this.patternFlashDelay} 
+                                 patternAction={this.setPattern} 
+                                 nextGameAction={this.handleNextGame}
+                                 playTimeAction={this.countDownPlayTimer}
+                                 currentPlayTimer={(this.state.maxPlayTimerSeconds - this.state.currentPlayTimerSeconds) + 1}
+                                 />
+                    </div>
+                )
+            }
+
+        } //end class Game
+
+        //RENDER THE PAGE
+        ReactDOM.render(<Game />, document.getElementById("root")); //JSX mehtod of doing it
+
+    </script>
+</body>

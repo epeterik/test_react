@@ -1,0 +1,257 @@
+<html>
+<head>
+    <title>Eric Peterik's Memory Game - 2018-01-22</title>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+
+    <div id="header"></div>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+
+        const formStyle = {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+            }
+
+        const divRowStyle = {
+            width: '700px',
+            margin: '5px',
+            padding: '5px'
+        }
+
+        const leftDivStyle = {
+            display: 'inline-block',
+            width: '200px',
+            margin: '5px',
+            textAlign: 'right'
+        }
+
+        const rightDivStyle = {
+            display: 'inline-block',
+            width: '480px',
+            margin: '5px',
+            textAlign: 'left',
+            color: 'red'
+        }
+
+        const thankYouStyle = {
+            width: '400px',
+            textAlign: 'left'
+        }
+        
+        const pageHeaderStyle = {
+            fontSize: '42pt',
+            padding: '5px',
+            textAlign: 'left'
+        }
+
+        const submitButtonStyle = {
+            boxShadow: '0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)'
+        }
+    
+   
+        class ValidationForm extends React.Component {
+            constructor(props)
+            {
+                super(props);
+                this.state = {
+                    nameValue: '',
+                    nameError: 'Please enter a name greater than 8 characters.',
+                    emailValue: '',
+                    emailError: 'Please enter valid email address.',
+                    submitClicked: false,
+                    submitEnabled: false
+                };
+
+                //bind functions/objects outside of class to class so they have the same scope/this
+                this.handleInputChange = this.handleInputChange.bind(this);
+                this.handleEmailChange = this.handleEmailChange.bind(this);
+                this.handleSubmit = this.handleSubmit.bind(this);
+                this.validateName = this.validateName.bind(this);
+                this.validateEmailAddress = this.validateEmailAddress.bind(this);
+                
+            } //end constructor
+
+            
+            validateName(name) {
+                if (name.trim().length > 8)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            validateEmailAddress(email) {
+                console.log(this.state.emailValue);
+
+                //using regular expression
+                //   https://stackoverflow.com/questions/41348459/regex-in-react-email-validation
+                //   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test 
+                let regexEmail = RegExp('^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$');
+
+                if (regexEmail.test(email))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            enableSubmit(name, email) {
+                console.log("enableSubmit: ");
+
+                if (this.validateName(name) &&
+                    this.validateEmailAddress(email))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false; 
+                    }
+            }
+
+            handleInputChange(event) {
+                console.log("in handleChange event");
+
+                //get entered name
+                let nameValue = event.target.value;
+                console.log("nameValue: "+ nameValue); //debug
+
+                //set name value state
+                this.setState({nameValue: nameValue});
+                console.log("nameValue state: " + this.state.nameValue); //debug
+
+                //perform validation
+                if (this.validateName(nameValue))
+                {
+                    this.setState({nameError: ""});
+                }
+                else
+                {
+                    this.setState({nameError: "Please enter a name greater than 8 characters."});
+                }
+            }
+
+            handleEmailChange(event) {
+                console.log("in handleChange event");
+
+                //get email address
+                let emailAddressValue = event.target.value;
+                console.log("emailValue: " + emailAddressValue); //debug
+
+                //set email address value state
+                this.setState({emailValue: emailAddressValue});
+                console.log("emailValue state: " + this.state.emailValue); //debug
+
+                //perform validation
+                if (this.validateEmailAddress(emailAddressValue))
+                {
+                    this.setState({emailError: ""});
+                }
+                else
+                {
+                    this.setState({emailError: "Please enter valid email address."});
+                }
+            }
+
+
+            handleSubmit(event) {
+                //alert('A name was submitted: ' + this.state.value);
+                this.setState({submitClicked: true})
+                event.preventDefault(); //prevent default action of a button on a form (default action is submit)
+            }
+
+            render ()
+            {
+                let output = '';
+
+                //have different displays depending on whether the form was "submitted"
+                if (!this.state.submitClicked)
+                {
+                    output = <div id='mainValidationForm' style={formStyle} >
+                        <NameField inputValidationMessage={this.state.nameError} handleValueChange={this.handleInputChange} value={this.state.nameValue} />
+                        <EmailField inputValidationMessage={this.state.emailError} handleValueChange={this.handleEmailChange} value={this.state.emailValue} />
+                        <SubmitButton handleSubmitClick={this.handleSubmit} buttonEnabled={this.enableSubmit(this.state.nameValue, this.state.emailValue)} />
+                    </div>
+                }
+                else
+                {
+                    output = <div id='mainValidationForm' style={formStyle} >
+                                <div style={thankYouStyle}>
+                                    <h1>Thanks!</h1>
+                                </div>
+                            </div>
+                }
+                
+
+                return (
+                    output
+                );
+
+            }
+
+        } //End of validationForm
+
+        //generate stateless namefield - stateless function
+        const NameField = (props) => {
+
+            return (
+                <div id='nameValidationLine' style={divRowStyle}>
+                    <div id='inputDiv' style={leftDivStyle} ><input onChange={props.handleValueChange} value={props.value} /></div>
+                    <div id='inputValidation' style={rightDivStyle} >{props.inputValidationMessage}</div>
+                </div>
+            )
+
+        } //end NameField
+
+        const EmailField = (props) => {
+
+            return (
+                <div id='emailValidationLine' style={divRowStyle}>
+                    <div id='emailDiv' style={leftDivStyle} ><input onChange={props.handleValueChange} value={props.value} /></div>
+                    <div id='emailValidation' style={rightDivStyle} >{props.inputValidationMessage}</div>
+                </div>
+            )
+
+        } //end EmailField
+
+        const SubmitButton = (props) => {
+
+            return (
+                <div id='submitButtonLine' style={divRowStyle}>
+                    <div id='submitDiv' style={leftDivStyle} ><button onClick={props.handleSubmitClick} style={submitButtonStyle} disabled={!props.buttonEnabled}>Submit</button></div>
+                    <div id='submitSpacerDiv' style={rightDivStyle} ></div>
+                </div>
+            )
+        } //end SubmitButton
+
+        const PageHeader = (props) => {
+
+                return (
+                    <div id='pageHeaderDiv' style={pageHeaderStyle}>
+                        Validated Form
+                    </div>
+                )
+
+            } //end PageHeader
+
+
+
+        //RENDER THE PAGE
+        ReactDOM.render(<PageHeader />, document.getElementById("header")); //JSX mehtod of doing it
+        ReactDOM.render(<ValidationForm />, document.getElementById("root")); //JSX mehtod of doing it
+
+    </script>
+</body>

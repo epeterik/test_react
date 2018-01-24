@@ -1,0 +1,59 @@
+<html>
+    <head>
+        <title>Eric Peterik's Checkerboard Assignment 2018-01-17</title>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <!--         <script src="node_modules/react/umd/react.development.js"></script>
+        <script src="node_modules/react-dom/umd/react-dom.development.js"></script> 
+        -->
+    </head>
+    <body>
+        <div id="root"></div>
+
+        <script>
+            var styles = {
+                row: {height: '20px'},
+                cell: {height: '20px', width: '20px', display:'inline-block'},
+                colorA: {backgroundColor: 'black'},
+                colorB: {backgroundColor: 'red'}
+                }
+
+            function CheckerBoard (props) {
+                
+
+                return /*Some UI... perhaps a list of rows?*/
+            }
+            function Row (props) {
+                console.log('in Row');
+                let myArrayOfCells = new Array(12);
+
+                myArrayOfCells.map(function myCallBack(arrayIndexValue, arrayIndex) {console.log("in callback"); Cell("someData"); console.log("after call to Cell");})
+
+                console.log(myArrayOfCells);
+
+                return /*Some UI... perhaps a list of cells?*/
+            }
+
+            function Cell (props) {
+                let newObj = {...styles.cell, ...styles.colorA}; //object spread
+                let cellDiv = React.createElement('div', {style: newObj}, "Some Text"); 
+                return cellDiv;
+                //return /*Some UI*/
+            }
+            // And feel free to use the following object:
+
+
+            let userNumberInput = "12";
+            let userColorInput1 = "black";
+            let userColorInput2 = "red";
+
+            Row("someData");
+
+            //render elements to screen
+            ReactDOM.render(
+                Cell(userColorInput1), document.getElementById("root"));
+
+        </script>
+    </body>
+</html>

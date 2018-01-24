@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <title>Eric Peterik's Voting App Basic's 1 - 2018-01-17</title>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    </head>
+    <body>
+        <div id='root'></div>
+
+        <script type="text/babel">
+            class App extends React.Component {
+                constructor(props){ //used to bring in properties
+                    super(props); //sends properties to parent component
+                    this.state = { //sets state
+                        text: 'Stateful component!'  //must be a key-value pair object
+                    }
+                }
+                render(){
+                    return (
+                        <div>
+                            <h1>{this.state.text}</h1> 
+                            <button
+                                onClick={ () => this.setState({ text: 'State has changed!' }) } >
+                                Click to change state's text value!
+                            </button>
+                        </div>
+                    )
+                }
+            }
+
+            ReactDOM.render(<App />, document.getElementById("root")); //JSX mehtod of doing it
+        </script>
+    </body>
+</html>

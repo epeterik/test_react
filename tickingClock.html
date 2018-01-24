@@ -1,0 +1,67 @@
+<html>
+	<head>
+		<title>React-Test Project</title>
+		<script src="node_modules/react/umd/react.development.js"></script>
+		<script src="node_modules/react-dom/umd/react-dom.development.js"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	</head>
+	<body>
+		<h1>JavaScript Clock Render</h1>
+		<div id="JSClockRender"></div>
+		<hr />
+		<h1>React Clock Render</h1>
+		<div id="clockHearder"></div>
+		<div id="displayClockHere"></div>
+
+		<script>
+			//Clock in standard JavaScript
+			myJSClock = () => {
+				//debug
+				//console.log("in myJsClock()"); //debug
+
+				//var
+				let jsCurrentDate = new Date();
+				let htmlElementToUpdate = document.getElementById("JSClockRender");
+				//console.log(htmlElementToUpdate);
+
+				htmlElementToUpdate.innerHTML = "The Time is: " + jsCurrentDate.toLocaleTimeString();
+			}
+
+			var jsPageClock = setInterval(myJSClock, 1000); //must call set interval with a callback function
+			//console.log(jsPageClock); //debug
+
+			//Clock in React
+			console.log(React);
+			console.log(ReactDOM);
+
+			const greeting = React.createElement("h2", null, ["System Local Time"]);
+			ReactDOM.render(greeting, document.getElementById("clockHearder"));
+
+			function myReactClock() {
+				//debug
+				//console.log("in myReactClock");
+
+				//var 
+				let curDate = new Date();
+				//console.log(curDate); //debug
+
+				//create display string
+				const localClockTimeForDisplay = "The Time is: " + curDate.toLocaleTimeString();
+				//console.log(localClockTimeForDisplay); //debug
+
+				//create new element each time
+				React.createElement('p', null, localClockTimeForDisplay);
+				
+				//display new element
+				ReactDOM.render(localClockTimeForDisplay, document.getElementById('displayClockHere'));
+
+			} //end myReactClock()
+			
+			var pageClock = setInterval(myReactClock, 1000); //must call set interval with a callback function
+			//console.log(pageClock);
+
+		</script>
+
+	</body>
+
+</html>

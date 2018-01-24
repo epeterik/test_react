@@ -1,0 +1,116 @@
+<html>
+<head>
+    <title>Eric Peterik's Voting App Basic's 1 - 2018-01-17</title>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="title"></div>
+	<div id="root"></div>
+
+	<script type="text/babel">
+		//const
+        const votingListStyle = { border: '1px solid black',
+                                  width: '500px',
+                                  margin: 'auto'
+                                };
+
+        const votingListElementStyle = { height: '50px', 
+                            width: '500px', 
+                            border: '1px solid black',
+                            display: 'block',
+                            textAlign: 'center',
+                            fontSize: '22pt',
+                            lineHeight: '50px' /*match to height for vertical centering*/
+                            };
+
+        const votingListElementCountStyle = {
+            width: '100px',
+            display: 'inline-block'
+        };
+
+        const votingListElementNameStyle = {
+            width: '300px',
+            display: 'inline-block'
+        };
+
+        const votingListElementAddStyle = {
+            width: '100px',
+            fontSize: '30pt',
+            fontWeight: '900',
+            color: 'green',
+            display: 'inline-block'
+        };
+
+		//const votingList = [{name: "React", votes: 0}, {name: "Vue", votes: 0}, {name: "Angular", votes: 0}, {name: "Ember", votes: 0}];
+        const votingList = ["React", "Vue", "Angular", "Ember"];
+
+        function GeneratePageTitle(props) {
+            return (
+                <h1 style={{textAlign: 'center'}}>Vote Your JS Library!</h1>
+            )
+        }
+
+        //create element to hold the voting list
+        function GenerateVoteList(props) {
+            return (
+               // <div>{votingList.map((candidates) => <div key={candidates.name}>{candidates.name}</div>)}</div>
+               <div id='votingList' style={votingListStyle}><GenerateVoteListElement /></div>
+            )
+        }
+
+        
+        //count users vote
+        let voteCounted = function voteCounted(event) {
+            //reference https://www.reactenlightenment.com/react-jsx/5.8.html for adding functions in JSX
+            //reference https://stackoverflow.com/questions/12820724/javascript-this-reference-for-onclick-event-not-working for getting parentNode information
+            
+            //get the object that is the target of the event (what was clicked)
+            let eventTarget = event.target;
+            //console.log(eventTarget);
+
+            //get the object that the target node belongs to (the parent/up tree from current element)
+            let targetParent = eventTarget.parentNode
+            //console.log(targetParent);
+
+            //get the ID of parent
+            let parentId = targetParent.id;
+            //console.log(parentId);
+
+            //display alert to user
+            alert("Congrats, you voted for " + parentId);
+        }
+
+        //run a map funciton on each of the array elements to generate an output
+        function GenerateVoteListElement(props) {
+            return (
+                votingList.map(votingListElementMapCallback) //by decault votingListElementMapCallback is supplied each individual array element
+            )
+
+            //generate the requisite DOM modules for each candidate
+            function votingListElementMapCallback(candidate) {
+                return (
+                    <div style={votingListElementStyle} 
+                        key={candidate} 
+                        id={candidate}>
+                        <div style={votingListElementCountStyle}>score</div>
+                        <div style={votingListElementNameStyle}>{candidate}</div>
+                        <div onClick={voteCounted} style={votingListElementAddStyle}>+</div>
+                    </div>
+                )
+
+            } //end of GenerateVoteListElement
+
+            console.log(props);
+        } //end of GenerateVoteListElement
+
+        
+        //render the page
+        ReactDOM.render(<GeneratePageTitle />, document.getElementById("title")); //JSX mehtod of doing it
+        ReactDOM.render(<GenerateVoteList />, document.getElementById("root")); //JSX mehtod of doing it
+
+	</script>
+</body>
+</html>

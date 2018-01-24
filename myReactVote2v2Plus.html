@@ -1,0 +1,176 @@
+<html>
+<head>
+    <title>Eric Peterik's Voting App Basic's 2 - 2018-01-17</title>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="title"></div>
+	<div id="root"></div>
+
+	<script type="text/babel">
+		//const
+        const votingListStyle = { border: '1px solid black',
+                                  width: '500px',
+                                  margin: 'auto'
+                                };
+
+        const votingListElementStyle = { height: '50px', 
+                            width: '500px', 
+                            border: '1px solid black',
+                            display: 'block',
+                            textAlign: 'center',
+                            fontSize: '22pt',
+                            lineHeight: '50px' /*match to height for vertical centering*/
+                            };
+
+        const votingListElementCountStyle = {
+            width: '40px',
+            height: '40px',
+            border: '1px solid black',
+            display: 'inline-block',
+            borderRadius: '50%'
+        };
+
+        const votingListElementNameStyle = {
+            width: '350px',
+            display: 'inline-block'
+        };
+
+        const votingListElementAddStyle = {
+            width: '50px',
+            fontSize: '30pt',
+            fontWeight: '900',
+            color: 'green',
+            display: 'inline-block'
+        };
+
+        const votingListElementSubtractStyle = {
+            width: '50px',
+            fontSize: '30pt',
+            fontWeight: '900',
+            color: 'red',
+            display: 'inline-block'
+        };
+
+        function GeneratePageTitle(props) {
+            return (
+                <h1 style={{textAlign: 'center'}}>Vote Your JS Library!</h1>
+            )
+        }
+        
+        class App extends React.Component {
+                constructor(props)
+                {
+                    super(props);
+                    this.state = {
+                        votingElementsArray: [{name: "React", votes: 0},{name: "Vue", votes: 0},{name: "Angular", votes: 0},{name: "Ember", votes: 0}]
+                    };
+
+                    //bind functions/objects outside of class to class so they have the same scope/this
+                    this.handleUpVote = this.handleUpVote.bind(this);
+                    this.handleDownVote = this.handleDownVote.bind(this);
+                    this.addLanguage = this.addLanguage.bind(this);
+
+                } //end constructor
+
+                handleUpVote(arrayIndex) {
+                        //debug
+                        //console.log("In handleUpVote");
+                        //console.log(arrayIndex);
+
+                        let arrayToUpdate = this.state.votingElementsArray;
+                        arrayToUpdate[arrayIndex].votes = arrayToUpdate[arrayIndex].votes + 1;
+                        this.setState({votingElementsArray: arrayToUpdate});
+                        
+                        //console.log(arrayToUpdate); //debug
+                    }
+
+                handleDownVote(arrayIndex) {
+                        //debug
+                        //console.log("In handleUpVote");
+                        //console.log(arrayIndex);
+
+                        let arrayToUpdate = this.state.votingElementsArray;
+                        arrayToUpdate[arrayIndex].votes = arrayToUpdate[arrayIndex].votes - 1;
+                        this.setState({votingElementsArray: arrayToUpdate});
+                        
+                        //console.log(arrayToUpdate); //debug
+                    }
+
+                addLanguage(langName) {
+                        //debug
+                        //console.log("In handleUpVote");
+                        //console.log(langName);
+
+                        let arrayToUpdate = this.state.votingElementsArray;
+                        arrayToUpdate.push({name: langName, votes: 0});
+                        this.setState({votingElementsArray: arrayToUpdate});
+                        
+                        //console.log(arrayToUpdate); //debug
+                    }
+
+                render() {
+
+                    //array mapper - must be positioned within the code PRIOR to being used
+                    let mapThisVotingList = (languageObject, arrayIndex) => {
+                                return <GenerateVotingListElementDisplay 
+                                        key={arrayIndex}
+                                        index={arrayIndex}
+                                        languageObject={languageObject}
+                                        upVoteClick={this.handleUpVote} 
+                                        downVoteClick={this.handleDownVote}/>                                
+                        }
+
+                    //stateful array is immutable, so must create new a new array to sort
+                    let votingListToSort = this.state.votingElementsArray;
+                    //sort from: https://www.w3schools.com/js/js_array_sort.asp
+                    votingListToSort.sort(function(a, b){return b.votes - a.votes})
+
+                    //store mapped array in seperate variable - makes debugging easier - mapping generates new array anyway
+                    let votingListToRender = votingListToSort.map(mapThisVotingList);
+                    //console.log(votingListToRender); //debug
+
+                    //return rendered components
+                    return (
+                        <div key={"mainList"}>
+                            <div key={"someKeyValue"} style={votingListStyle}>
+                                {
+                                    votingListToRender
+                                }
+                            </div>
+                        </div>
+                        );
+
+                } //end render()
+            
+            } //end App()
+
+            //generate the requisite DOM modules for each candidate
+            const GenerateVotingListElementDisplay = (props) => {
+                //debug
+                //console.log("In GenerateVotingListElementDisplay");
+                //console.log(props);
+
+                //return row to render
+                //!!!!! Do not reference props.key - will generate warning !!!!!
+                return (
+                    <div key={props.index} id={"votingElement" + props.index} style={votingListElementStyle}>
+                        <div key={"count" + props.index} style={votingListElementCountStyle}>{props.languageObject.votes}</div>
+                        <div key={"name" + props.index} style={votingListElementNameStyle}>{props.languageObject.name}</div>
+                        <div key={"incrementer" + props.index} onClick={() => props.upVoteClick(props.index)} style={votingListElementAddStyle}>+</div>
+                        <div key={"decrementer" + props.index} onClick={() => props.downVoteClick(props.index)} style={votingListElementSubtractStyle}>-</div>
+                    </div>
+                )
+            } //end of GenerateVotingListElementDisplay
+
+            //render the page
+            ReactDOM.render(<GeneratePageTitle />, document.getElementById("title")); //JSX mehtod of doing it
+            //Render voting list
+            ReactDOM.render(<App />, document.getElementById('root'));
+
+	</script>
+</body>
+</html>

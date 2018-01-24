@@ -1,0 +1,151 @@
+<html>
+    <head>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    </head>
+    <body>
+        <div id='root'></div>
+        
+        <script type="text/babel">
+
+            const counterListStyle = { 
+                                    width: '300px',
+                                    margin: 'auto'
+                                    };
+
+            const counterElementStyle = { height: '65px', 
+                                width: '300px', 
+                                border: '1px solid black',
+                                display: 'block',
+                                margin: '10px',
+                                textAlign: 'center',
+                                fontSize: '22pt',
+                                lineHeight: '40px' /*match to height for vertical centering*/
+                                };
+
+            console.log("in javascript");
+
+            class App extends React.Component {
+                constructor(props)
+                {
+                    super(props);
+                    this.state = {
+                        counterDisplayArray: []
+                    };
+
+                    //bind functions/objects outside of class to class so they have the same scope/this
+                    this.addCounter = this.addCounter.bind(this);
+                    //this.render = this.render.bind(this);
+
+                } //end constructor
+
+                addCounter() {
+                    console.log("in Add Counter()");
+
+                    //push new base number value onto counter array
+                    let counterDisplayArrayToUpdate = this.state.counterDisplayArray;                     
+                    counterDisplayArrayToUpdate.push(<Counter />);
+                    this.setState({counterDisplayArray: counterDisplayArrayToUpdate});
+
+                    console.log(this.state);
+                } 
+
+                //Component Did Mount runs after App (this) has been mounted and the render function executed
+                componentDidMount() {
+                    //call the addCounter() funciton - this is equivelent to the user clicking the Add Counter button
+                    //  Needed to provide the counter on the page
+                    this.addCounter();
+                }
+                
+                render() {
+                    //props have to be passed as html attributes, explicity, in JSX
+
+                    return (//this.state.displayArray
+                        <div key={"outerDiv"}>
+                                <button onClick={() => { console.log("button clicked"); this.addCounter(); } }>New Counter</button>
+                                <div id={"counterList"} style={counterListStyle} key={"counterList"}>
+                                    {
+                                        this.state.counterDisplayArray
+                                        //someCounter
+                                    }     
+                                </div>              
+                            </div>
+                        );
+
+                } //end render()
+            
+            } //end App()
+
+            class Counter extends React.Component {
+                constructor(props)
+                {
+                    super(props);
+                    this.state = {
+                        currentCount: 0
+                    };
+
+                    //bind functions/objects outside of class to class so they have the same scope/this
+                    this.handleIncrementClick = this.handleIncrementClick.bind(this);
+                    this.handleDecrementClick = this.handleDecrementClick.bind(this);
+
+                } //end constructor
+
+                handleIncrementClick() {
+                        console.log("In new handleIncrementClick");
+                        let updateTheCount = this.state.currentCount;
+                        updateTheCount++;
+                        console.log(updateTheCount);
+                        this.setState({currentCount: updateTheCount});
+                    }
+
+                handleDecrementClick() {
+                        console.log("In new handleDecrementClick");
+                        let updateTheCount = this.state.currentCount;
+                        updateTheCount--;
+                        console.log(updateTheCount);
+                        this.setState({currentCount: updateTheCount});
+                    }
+                
+                render() {
+                    //props have to be passed as html attributes, explicity, in JSX
+
+                    let someCounter = <GenerateCounter 
+                                        displayCount={this.state.currentCount} 
+                                        incrementClick={this.handleIncrementClick} 
+                                        decrementClick={this.handleDecrementClick} />;
+
+                    return (
+                        someCounter
+                        );
+
+                } //end render()
+            
+            } //end Counter()
+
+            const GenerateCounter = (props) => {
+
+                //debug
+                console.log(props);
+
+                return (<div style={counterElementStyle} >
+                    <div>{props.displayCount}</div>
+                    <button onClick={() => props.decrementClick()}>Decrement</button>
+                    <button onClick={() => props.incrementClick()}>Increment</button>
+                    </div>);
+
+                } //end GenerateCounter
+
+            //suggest, have element id or name as key in state <-- can name each row in voting app and use that to keep track of votes...
+
+            function renderScreen()
+            {
+                ReactDOM.render(<App />, document.getElementById('root'));
+            }
+            renderScreen();
+           // ReactDOM.render(<App />, document.getElementById('root'));
+         
+        </script>
+    </body>
+</html>

@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <title>React-Test Project</title>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <!--         <script src="node_modules/react/umd/react.development.js"></script>
+        <script src="node_modules/react-dom/umd/react-dom.development.js"></script> 
+        -->
+
+    </head>
+    <body>
+        <div id="root"></div>
+
+        <script>
+            const toDoList = ["Learn React", "Climb Mt. Everest", "Run a marathon", "Feed the dogs"];
+            //console.log(toDoList);
+
+            const contentHeader = React.createElement('h1', null, 'Hello Dojo!');
+            console.log(contentHeader);
+
+            const listHeader = React.createElement('h2', null, 'Things I need to do:');
+            console.log(listHeader);
+            
+            //list items
+            const mainlist = [];
+            for (let i = 0; i < toDoList.length; i++)
+            {
+                mainlist.push(React.createElement('li', {key: "li"+i}, toDoList[i]));
+                console.log(toDoList[i]);
+            }
+            console.log(mainlist);
+
+            const pageList = React.createElement('ul', {key: "somethingElse1"}, mainlist);
+            console.log(pageList);
+
+            const rootDiv = React.createElement('div', null, contentHeader,listHeader,pageList); // don't need to array objects, just keep adding them
+            console.log(rootDiv);
+
+            ReactDOM.render(rootDiv, document.getElementById("root"));
+
+        </script>
+    </body>
+</html>

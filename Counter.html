@@ -1,0 +1,171 @@
+<html>
+    <head>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    </head>
+    <body>
+        <div id='root'></div>
+        
+        <script type="text/babel">
+
+            const counterListStyle = { border: '1px solid black',
+                                    width: '300px',
+                                    margin: 'auto'
+                                    };
+
+            const counterElementStyle = { height: '65px', 
+                                width: '300px', 
+                                border: '1px solid black',
+                                display: 'block',
+                                textAlign: 'center',
+                                fontSize: '22pt',
+                                lineHeight: '40px' /*match to height for vertical centering*/
+                                };
+
+            console.log("in javascript");
+
+            class App extends React.Component {
+                constructor(props)
+                {
+                    super(props);
+                    this.state = {
+                        myCounter: [0],
+                        generatedCounters: 0,
+                        displayArray: []
+                    };
+
+                    //bind functions/objects outside of class to class so they have the same scope/this
+                    this.handleIncrementClick = this.handleIncrementClick.bind(this);
+                    this.handleDecrementClick = this.handleDecrementClick.bind(this);
+                    this.addCounter = this.addCounter.bind(this);
+                    //this.render = this.render.bind(this);
+
+                } //end constructor
+
+                handleIncrementClick(indexVal) {
+                        console.log("increment click - Index Val: " + indexVal);
+                        let calcOnThisArray = this.state.myCounter;                    
+                        console.log("calcOnThisArray before increment: " + calcOnThisArray);
+                        calcOnThisArray[indexVal] = calcOnThisArray[indexVal] + 1;
+                        console.log("calcOnThisArray after increment: " + calcOnThisArray);
+                        this.setState({myCounter: calcOnThisArray});
+                        console.log("Increment After Counter State: "+ this.state.myCounter);
+                    }
+
+                handleDecrementClick(indexVal) {
+                        console.log("decrement click - Index Val: " + indexVal);
+                        let calcOnThisArray = this.state.myCounter; 
+                        console.log("calcOnThisArray before Decrement: " + calcOnThisArray);                    
+                        calcOnThisArray[indexVal] = calcOnThisArray[indexVal] - 1;
+                        this.setState({myCounter: calcOnThisArray});
+                        console.log("Decrement After Counter State: "+ this.state.myCounter);
+                    }
+
+                addCounter() {
+                    console.log("in Add Counter()");
+
+                    let numberOfCurrentCounter = this.state.generatedCounters;
+                    console.log("Number of current counters: "+ numberOfCurrentCounter);
+                    
+                    //increment number of counters
+                    numberOfCurrentCounter++;
+
+                    //set updated counter
+                    this.setState({generatedCounters: numberOfCurrentCounter});
+                    
+                    //push new base number value onto counter array
+                    let calcOnThisArray = this.state.myCounter;                     
+                    calcOnThisArray.push(0);
+                    this.setState({myCounter: calcOnThisArray});
+
+                    console.log(this.state);
+
+                    //render new counter
+             /*      ReactDOM.render(<GenerateCounter 
+                            key={this.state.generatedCounters}
+                            counterIndex={this.state.generatedCounters} 
+                            displayCount={this.state.myCounter[this.state.generatedCounters]} 
+                            incrementClick={this.handleIncrementClick} 
+                            decrementClick={this.handleDecrementClick} />, document.getElementById('counterList'));*/
+
+                    let generatedCounter =<GenerateCounter 
+                                            key={this.state.generatedCounters}
+                                            counterIndex={this.state.generatedCounters} 
+                                            displayCount={this.state.myCounter[this.state.generatedCounters]} 
+                                            incrementClick={this.handleIncrementClick} 
+                                            decrementClick={this.handleDecrementClick} />; 
+                    
+                    let displayArrayHere = this.state.displayArray;
+
+                    console.log(displayArrayHere);
+
+                    displayArrayHere.push(generatedCounter);
+
+                    console.log(displayArrayHere);
+
+                    this.setState({displayArray: displayArrayHere});
+
+                    console.log("exiting addCounter()");
+
+                    //ReactDOM.render(this.state.displayArray, document.getElementById('counterList'));
+
+                    return true;
+                } 
+                
+                render() {
+                    //props have to be passed as html attributes, explicity, in JSX
+
+                    let someCounter = <GenerateCounter 
+                                        key={this.state.generatedCounters}
+                                        counterIndex={this.state.generatedCounters} 
+                                        displayCount={this.state.myCounter[this.state.generatedCounters]} 
+                                        incrementClick={this.handleIncrementClick} 
+                                        decrementClick={this.handleDecrementClick} />;
+                    //console.log("here");
+                    //console.log(someCounter);
+
+                    let displayArrayHere = [someCounter];
+                    console.log("here2");
+                    console.log(displayArrayHere);
+
+                   // this.setState({displayArray: displayArrayHere});
+                    console.log("here3");
+                    console.log(this.state.displayArray)
+
+                    return (//this.state.displayArray
+                        <div key={"outerDiv"}>
+                                <button onClick={() => { console.log("button clicked"); this.addCounter(); } }>New Counter</button>
+                                <div id={"counterList"} style={counterListStyle} key={"counterList"}>
+                                    {
+                                        //this.state.displayArray
+                                        displayArrayHere
+                                    }     
+                                </div>              
+                            </div>
+                        );
+
+                } //end render()
+            
+            } //end App()
+
+            const GenerateCounter = (props) => {
+
+                //debug
+                console.log(props);
+
+                return (<div style={counterElementStyle} name={"counter" + props.counterIndex}>
+                    <div>{props.displayCount}</div>
+                    <button onClick={() => props.decrementClick(props.counterIndex)}>Decrement</button>
+                    <button onClick={() => props.incrementClick(props.counterIndex)}>Increment</button>
+                    </div>);
+
+                } //end GenerateCounter
+
+            //suggest, have element id or name as key in state <-- can name each row in voting app and use that to keep track of votes...
+
+            ReactDOM.render(<App />, document.getElementById('root'));
+        </script>
+    </body>
+</html>
